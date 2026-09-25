@@ -112,8 +112,5 @@ def main():
         print(classes[class_id])
         print(f"Rank {rank + 1}: Class ID {class_id} - {confidence:.2f}%")
 
-
-
-
 if __name__ == '__main__':
     main()
