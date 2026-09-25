@@ -38,7 +38,7 @@ def main():
         dataset=train_data,
         shuffle=True,
         persistent_workers=True,
-        pin_memory=False
+        pin_memory=True
     )
 
     test_loader = torch.utils.data.DataLoader(
@@ -47,11 +47,11 @@ def main():
         dataset=test_data,
         shuffle=True,
         persistent_workers=True,
-        pin_memory=False
+        pin_memory=True
     )
 
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.AdamW(net.parameters(), lr=1e-5, weight_decay=1e-2)
+    optimizer = optim.AdamW(net.parameters(), lr=1e-3, weight_decay=1e-2)
     
     for epoch in range(5):
         net.train()
@@ -79,6 +79,6 @@ def main():
             print('accuracy', (correct / (incorrect + correct)) * 100, '%')
 
     torch.save(net.to(type).state_dict(), 'birds_model.pt')
-    
+
 if __name__ == '__main__':
     main()
