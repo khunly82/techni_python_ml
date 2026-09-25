@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import torch
 import torchvision
 from torch import nn, optim
@@ -8,6 +10,8 @@ from torchvision.models import EfficientNet_V2_S_Weights, efficientnet_v2_s
 def main():
     # choix du GPU ou du CPU
     type = 'cuda' if torch.cuda.is_available() else 'cpu'
+    print(torch.cuda.is_available())
+    
     device = torch.device(type)
 
     # chargement de poids du modele Eff...
@@ -51,7 +55,7 @@ def main():
     )
 
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.AdamW(net.parameters(), lr=1e-3, weight_decay=1e-2)
+    optimizer = optim.AdamW(net.parameters(), lr=1e-5, weight_decay=1e-2)
     
     for epoch in range(5):
         net.train()
@@ -75,10 +79,10 @@ def main():
             _, predicted = torch.max(outputs.data, 1)
             correct += (predicted == labels).sum().item()
             incorrect += (predicted != labels).sum().item()
-            print(correct, '/', incorrect)
+            print(correct, '/', incorrect + correct)
             print('accuracy', (correct / (incorrect + correct)) * 100, '%')
 
-    torch.save(net.to(type).state_dict(), 'birds_model.pt')
+    torch.save(net.to(type).state_dict(), f'birds_model{datetime.now().isoformat()}.pt')
 
 if __name__ == '__main__':
     main()
