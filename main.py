@@ -7,7 +7,8 @@ from torchvision.models import EfficientNet_V2_S_Weights, efficientnet_v2_s
 
 def main():
     # choix du GPU ou du CPU
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    type = 'cuda' if torch.cuda.is_available() else 'cpu'
+    device = torch.device(type)
 
     # chargement de poids du modele Eff...
     weights = EfficientNet_V2_S_Weights.DEFAULT
@@ -40,6 +41,15 @@ def main():
         pin_memory=False
     )
 
+    test_loader = torch.utils.data.DataLoader(
+        batch_size=32,
+        num_workers=4,
+        dataset=test_data,
+        shuffle=True,
+        persistent_workers=True,
+        pin_memory=False
+    )
+
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.AdamW(net.parameters(), lr=1e-5, weight_decay=1e-2)
     
@@ -55,5 +65,20 @@ def main():
             optimizer.step()
             print(f'epoch {epoch + 1}, iteration {i + 1}, loss: {loss.item():.3f}')
 
+    correct = 0
+    incorrect = 0
+    with torch.no_grad():
+        net.eval()
+        for data in test_loader:
+            images, labels = data[0].to(device), data[1].to(device)
+            outputs = net(images)
+            _, predicted = torch.max(outputs.data, 1)
+            correct += (predicted == labels).sum().item()
+            incorrect += (predicted != labels).sum().item()
+            print(correct, '/', incorrect)
+            print('accuracy', (correct / (incorrect + correct)) * 100, '%')
+
+    torch.save(net.to(type).state_dict(), 'birds_model.pt')
+    
 if __name__ == '__main__':
     main()
